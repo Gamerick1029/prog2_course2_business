@@ -1,34 +1,37 @@
 package Watchers;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import Food.Ingredient;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
- * Created by jacob on 13/05/2017.
+ * Created by jacob on 14/05/2017.
  */
 public class Comms {
 
-    private int connectionNum = 0;
-    private ServerSocket serverSocket;
+    private StockWatcher stockWatcher;
+    private LinkedList<Message> messages;
 
-    public Comms(int portNumber){
-        try {
-            serverSocket = new ServerSocket(portNumber);
-        } catch (IOException e) {
-            System.err.println("Could not bind to port" + portNumber);
-            System.exit(-1);
-        }
-
-        while (true) {
-            try {
-                new CommThread(serverSocket.accept(), connectionNum).start();
-                connectionNum++;
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("Could not create connection number" + connectionNum);
-            }
-        }
-
+    public Comms(StockWatcher stockWatcher){
+        this.stockWatcher = stockWatcher;
     }
+
+    private class Message implements Serializable {
+
+        public HashMap<Ingredient, Integer> cart;
+        public Integer CustomerID;
+
+        public Message(HashMap<Ingredient, Integer> cart, Integer customerID) {
+            this.cart = cart;
+            CustomerID = customerID;
+        }
+    }
+
+    public void addMessageToQueue(Message message){
+        messages.offer(message);
+    }
+
 
 }
